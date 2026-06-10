@@ -18,6 +18,7 @@ export interface IValidateOidcTokenParams extends INodeFunctionBaseParams {
   config: {
     token: string;
     jwksContextKey: string;
+    validateAudience: boolean;
     expectedAudience: string;
     expectedIssuer: string;
     alg: string;
@@ -51,12 +52,22 @@ export const validateToken = createNodeDescriptor({
       }
     },
     {
+      key: "validateAudience",
+      label: "Validate Audience",
+      type: "toggle",
+      defaultValue: true
+    },
+    {
       key: "expectedAudience",
       label: "Expected Audience",
       type: "cognigyText",
       defaultValue: "placeholder",
       params: {
         required: true
+      },
+      condition: {
+        key: "validateAudience",
+        value: true
       }
     },
     {
@@ -91,6 +102,7 @@ export const validateToken = createNodeDescriptor({
   form: [
     { type: "field", key: "token" },
     { type: "field", key: "jwksContextKey" },
+    { type: "field", key: "validateAudience" },
     { type: "field", key: "expectedAudience" },
     { type: "field", key: "expectedIssuer" },
     { type: "field", key: "alg" },
@@ -107,6 +119,7 @@ export const validateToken = createNodeDescriptor({
     const {
       token,
       jwksContextKey,
+      validateAudience,
       expectedAudience,
       expectedIssuer,
       alg,
@@ -179,7 +192,8 @@ export const validateToken = createNodeDescriptor({
         hasToken: Boolean(token),
         tokenLength: token?.length,
         jwksContextKey,
-        expectedAudience,
+        validateAudience,
+        expectedAudience: validateAudience ? expectedAudience : "(skipped)",
         expectedIssuer,
         alg,
         resultContextKey
@@ -193,7 +207,7 @@ export const validateToken = createNodeDescriptor({
         throw new Error("JWKS Context Key is missing.");
       }
 
-      if (!expectedAudience) {
+      if (validateAudience && !expectedAudience) {
         throw new Error("Expected Audience is missing.");
       }
 
@@ -267,7 +281,7 @@ export const validateToken = createNodeDescriptor({
 
       const verificationResult = await jwtVerify(token, publicKey, {
         issuer: expectedIssuer,
-        audience: expectedAudience,
+        ...(validateAudience ? { audience: expectedAudience } : {}),
         algorithms: [alg]
       });
 
