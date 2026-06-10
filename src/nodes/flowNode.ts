@@ -20,6 +20,8 @@ export interface IValidateOidcTokenParams extends INodeFunctionBaseParams {
     jwksContextKey: string;
     validateAudience: boolean;
     expectedAudience: string;
+    validateSubject: boolean;
+    expectedSubject: string;
     expectedIssuer: string;
     alg: string;
     resultContextKey: string;
@@ -31,7 +33,7 @@ type LogLevel = "debug" | "info" | "warn" | "error";
 export const validateToken = createNodeDescriptor({
   type: "validateToken",
   defaultLabel: "Validate OIDC Token",
-  preview: { key: "expectedAudience", type: "text" },
+  preview: { key: "alg", type: "text" },
   fields: [
     {
       key: "token",
@@ -71,6 +73,25 @@ export const validateToken = createNodeDescriptor({
       }
     },
     {
+      key: "validateSubject",
+      label: "Validate Subject",
+      type: "toggle",
+      defaultValue: false
+    },
+    {
+      key: "expectedSubject",
+      label: "Expected Subject",
+      type: "cognigyText",
+      defaultValue: "",
+      params: {
+        required: true
+      },
+      condition: {
+        key: "validateSubject",
+        value: true
+      }
+    },
+    {
       key: "expectedIssuer",
       label: "Expected Issuer",
       type: "cognigyText",
@@ -104,6 +125,8 @@ export const validateToken = createNodeDescriptor({
     { type: "field", key: "jwksContextKey" },
     { type: "field", key: "validateAudience" },
     { type: "field", key: "expectedAudience" },
+    { type: "field", key: "validateSubject" },
+    { type: "field", key: "expectedSubject" },
     { type: "field", key: "expectedIssuer" },
     { type: "field", key: "alg" },
     { type: "field", key: "resultContextKey" }
@@ -121,6 +144,8 @@ export const validateToken = createNodeDescriptor({
       jwksContextKey,
       validateAudience,
       expectedAudience,
+      validateSubject,
+      expectedSubject,
       expectedIssuer,
       alg,
       resultContextKey
@@ -194,6 +219,8 @@ export const validateToken = createNodeDescriptor({
         jwksContextKey,
         validateAudience,
         expectedAudience: validateAudience ? expectedAudience : "(skipped)",
+        validateSubject,
+        expectedSubject: validateSubject ? expectedSubject : "(skipped)",
         expectedIssuer,
         alg,
         resultContextKey
@@ -209,6 +236,10 @@ export const validateToken = createNodeDescriptor({
 
       if (validateAudience && !expectedAudience) {
         throw new Error("Expected Audience is missing.");
+      }
+
+      if (validateSubject && !expectedSubject) {
+        throw new Error("Expected Subject is missing.");
       }
 
       if (!expectedIssuer) {
@@ -282,6 +313,7 @@ export const validateToken = createNodeDescriptor({
       const verificationResult = await jwtVerify(token, publicKey, {
         issuer: expectedIssuer,
         ...(validateAudience ? { audience: expectedAudience } : {}),
+        ...(validateSubject ? { subject: expectedSubject } : {}),
         algorithms: [alg]
       });
 

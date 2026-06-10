@@ -22,6 +22,8 @@ Saves result to context:
 # Usage example
 1. Get a JSON Web Key (JWK, a cryptographic key or keypair expressed in JSON format), e.g. on https://mkjwk.org/.
 Random generation, output will be Public and Private Keypair, Public and Private Keypair Set, Public Key. 
+Example output (Public Key):
+```
 {
     "kty": "RSA",
     "e": "AQAB",
@@ -30,6 +32,7 @@ Random generation, output will be Public and Private Keypair, Public and Private
     "alg": "RS256",
     "n": "milTqNZzeFTpT1b8aDT8P1GJfs-C4jANt89y3zDt-F3lwQFcHpeYskLp0FJBJIhqeIUOnjG-kCImkEcpaO26IGKDZ51mdNsXX4PwUp1zSZwu9cYG72T2owLR-1pq8PNPcE1tV0f7-oj_XDNcyuZ32ytVIXy657zqEmMXY3K2s1TOffiD6Tq7waAeYVfnRq5PPJjpQin3cv9FAyuJk4vbjKCJaOrkwwTa-dNmHTkwT4SmX5KhU7JaefamvPLEaR0vq7YODFDxV0K9FvcxE6g4zluE-3RIFRqdRka6z2JefwjHvIlccqPGsxf1KmRGZGF0E2plF5vWSpwAdmGmYwQHDw"
 }
+```
 Copy Private Key (X.509 PEM Format) to later use for signing the token.
 
 2. Generate Encoded JWT, e.g. on https://www.jwt.io/.
